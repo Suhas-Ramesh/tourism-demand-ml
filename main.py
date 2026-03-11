@@ -6,8 +6,9 @@ from sklearn.preprocessing import StandardScaler
 from src.preprocessing import load_data, handle_missing_values, remove_duplicates, remove_outliers_iqr
 from src.feature_engineering import create_features
 from src.models import get_models
-from src.train_models import train_and_evaluate
+from src.train_models import train_and_evaluate, train_neural_network
 from src.experiment_tracker import save_results, select_best_model
+from src.neural_network import TourismNet
 
 
 # Load dataset
@@ -49,14 +50,14 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 
-# Load models
+# Load sklearn models
 models = get_models()
 
 
 results = []
 
 
-# Train and evaluate models
+# Train and evaluate sklearn models
 for model_name, model in models.items():
 
     rmse, mae, r2 = train_and_evaluate(
@@ -69,6 +70,23 @@ for model_name, model in models.items():
         "MAE": mae,
         "R2": r2
     })
+
+
+# Train Neural Network
+input_size = X_train.shape[1]
+
+nn_model = TourismNet(input_size)
+
+rmse, mae, r2 = train_neural_network(
+    nn_model, X_train, y_train, X_test, y_test
+)
+
+results.append({
+    "Model": "Neural_Network",
+    "RMSE": rmse,
+    "MAE": mae,
+    "R2": r2
+})
 
 
 # Save experiment results
